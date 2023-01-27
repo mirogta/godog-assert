@@ -1,38 +1,22 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	"github.com/cucumber/godog"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-type GodogAssert struct {
-	assert  *assert.Assertions
-	require *require.Assertions
-}
-
 type godogs struct {
-	GodogAssert
+	*GodogAssert
 	available int
 }
 
-func NewGodogs(t *testing.T) *godogs {
+func NewGodogs(bt *BddTesting) *godogs {
 	return &godogs{
-		available: 1,
-		GodogAssert: GodogAssert{
-			assert:  assert.New(t),
-			require: require.New(t),
-		},
+		available:   0,
+		GodogAssert: NewGodogAssert(bt),
 	}
-}
-
-func (g *godogs) reset() {
-	g.available = 0
 }
 
 func (g *godogs) thereAreGodogs(available int) {
@@ -53,10 +37,9 @@ func (g *godogs) thereShouldBeRemaining(remaining int) {
 }
 
 func TestFeatures(t *testing.T) {
+	bt := NewBddTesting(t)
 	suite := godog.TestSuite{
-		ScenarioInitializer: func(sc *godog.ScenarioContext) {
-			InitializeScenario(t, sc)
-		},
+		ScenarioInitializer: TestingScenarioInitialiser(bt, InitializeScenario),
 		Options: &godog.Options{
 			Format:   "pretty",
 			Paths:    []string{"features"},
@@ -69,13 +52,8 @@ func TestFeatures(t *testing.T) {
 	}
 }
 
-func InitializeScenario(t *testing.T, sc *godog.ScenarioContext) {
-	g := NewGodogs(t)
-
-	sc.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-		g.reset()
-		return ctx, nil
-	})
+func InitializeScenario(bt *BddTesting, sc *godog.ScenarioContext) {
+	g := NewGodogs(bt)
 
 	sc.Step(`^there are (\d+) godogs$`, g.thereAreGodogs)
 	sc.Step(`^I eat (\d+)$`, g.iEat)
