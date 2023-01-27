@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -20,10 +19,6 @@ func NewGodogs(t *testing.T) *godogs {
 		available:   1,
 		GodogAssert: NewGodogAssert(t),
 	}
-}
-
-func (g *godogs) reset() {
-	g.available = 0
 }
 
 func (g *godogs) thereAreGodogs(available int) {
@@ -62,11 +57,6 @@ func TestFeatures(t *testing.T) {
 
 func InitializeScenario(t *testing.T, sc *godog.ScenarioContext) {
 	g := NewGodogs(t)
-
-	sc.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-		g.reset()
-		return ctx, nil
-	})
 
 	sc.Step(`^there are (\d+) godogs$`, g.thereAreGodogs)
 	sc.Step(`^I eat (\d+)$`, g.iEat)

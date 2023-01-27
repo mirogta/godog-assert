@@ -13,10 +13,10 @@ Scenario: Eat 5 out of 12
 Scenario: Eat 5 out of 12
     Given there are 12 godogs
     When I eat 1
-    Then there should be 0 remaining
+    Then there should be 20 remaining
 
 # non-sensical scenario - should fail on `require`
 Scenario: Eat 5 out of 12
     Given there are 12 godogs
     When I eat 20
-    Then there should be -8 remaining
+    Then there should be 0 remaining
