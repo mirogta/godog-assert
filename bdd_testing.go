@@ -9,35 +9,35 @@ import (
 )
 
 type BddTesting struct {
-	test *testing.T
-	err  error
+	t   *testing.T
+	err error
 }
 
 func NewBddTesting(t *testing.T) *BddTesting {
-	return &BddTesting{
-		test: t,
-	}
+	return &BddTesting{t: t}
 }
 
-func (t *BddTesting) Testing() *testing.T {
-	return t.test
+func (bt *BddTesting) Testing() *testing.T {
+	return bt.t
 }
 
-func (t *BddTesting) Errorf(format string, args ...interface{}) {
-	t.err = fmt.Errorf(format, args...)
+func (bt *BddTesting) Errorf(format string, args ...interface{}) {
+	bt.err = fmt.Errorf(format, args...)
 
 	// do not log additional error message - it's already too chatty
 	//t.test.Errorf(format, args...)
 
-	t.test.Fail()
+	bt.t.Fail()
 }
 
-func (t *BddTesting) FailNow() {
-	t.test.FailNow()
+func (bt *BddTesting) FailNow() {
+	// actually, don't FailNow bacause that will panic
+	// and prevent from getting the overall suite stats
+	bt.t.Fail()
 }
 
-func (t *BddTesting) EmitErrors(ctx context.Context, st *godog.Step, status godog.StepResultStatus, err error) (context.Context, error) {
-	if t.err == nil {
+func (bt *BddTesting) EmitErrors(ctx context.Context, st *godog.Step, status godog.StepResultStatus, err error) (context.Context, error) {
+	if bt.err == nil {
 		return ctx, nil
 	}
 
@@ -47,13 +47,14 @@ func (t *BddTesting) EmitErrors(ctx context.Context, st *godog.Step, status godo
 	// once (correctly) in a red colour after the failed scenario
 	// but then another one (incorrectly) in a grey colour, triggered at suite.go:451
 
-	return ctx, t.err
+	return ctx, bt.err
 }
 
-// Wrapper around ScenarioInitialiser which allows us to pass the BddTesting object to it along with the ScenarioContext
-func TestingScenarioInitialiser(bt *BddTesting, init func(*BddTesting, *godog.ScenarioContext)) func(sc *godog.ScenarioContext) {
+// Wrapper around ScenarioInitialiser which allows us to pass the *testing.T object to it along with the ScenarioContext
+func TestingScenarioInitialiser(t *testing.T, init func(*testing.T, *godog.ScenarioContext) *BddTesting) func(sc *godog.ScenarioContext) {
 	return func(sc *godog.ScenarioContext) {
+		bt := init(t, sc)
+		// this produces the nice color-coded output
 		sc.StepContext().After(bt.EmitErrors)
-		init(bt, sc)
 	}
 }
