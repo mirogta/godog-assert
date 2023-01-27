@@ -6,28 +6,19 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type GodogAssert struct {
-	assert  *assert.Assertions
-	require *require.Assertions
-}
-
 type godogs struct {
-	GodogAssert
+	*GodogAssert
 	available int
 }
 
 func NewGodogs(t *testing.T) *godogs {
 	return &godogs{
-		available: 1,
-		GodogAssert: GodogAssert{
-			assert:  assert.New(t),
-			require: require.New(t),
-		},
+		available:   1,
+		GodogAssert: NewGodogAssert(t),
 	}
 }
 
@@ -40,16 +31,16 @@ func (g *godogs) thereAreGodogs(available int) {
 }
 
 func (g *godogs) iEat(num int) {
-	g.require.NotEmpty(g.available, "there are no godogs available")
-	g.require.Less(num, g.available, fmt.Sprintf("you cannot eat %d godogs, there are %d available", num, g.available))
+	require.NotEmpty(g.t, g.available, "there are no godogs available")
+	require.Less(g.t, num, g.available, fmt.Sprintf("you cannot eat %d godogs, there are %d available", num, g.available))
 
 	g.available -= num
 }
 
 func (g *godogs) thereShouldBeRemaining(remaining int) {
-	g.require.NotEmpty(g.available, "there are no godogs available")
+	require.NotEmpty(g.t, g.available, "there are no godogs available")
 
-	g.assert.Equal(g.available, remaining, fmt.Sprintf("expected %d godogs to be remaining, but there is %d", remaining, g.available))
+	assert.Equal(g.t, g.available, remaining, fmt.Sprintf("expected %d godogs to be remaining, but there is %d", remaining, g.available))
 }
 
 func TestFeatures(t *testing.T) {
