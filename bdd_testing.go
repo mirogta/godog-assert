@@ -17,10 +17,6 @@ func NewBddTesting(t *testing.T) *BddTesting {
 	return &BddTesting{t: t}
 }
 
-func (bt *BddTesting) Testing() *testing.T {
-	return bt.t
-}
-
 func (bt *BddTesting) Errorf(format string, args ...interface{}) {
 	bt.err = fmt.Errorf(format, args...)
 
