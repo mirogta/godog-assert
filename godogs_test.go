@@ -39,14 +39,7 @@ func (g *godogs) thereShouldBeRemaining(remaining int) {
 }
 
 func TestFeatures(t *testing.T) {
-	suite := godog.TestSuite{
-		ScenarioInitializer: TestingScenarioInitialiser(t, InitializeScenario),
-		Options: &godog.Options{
-			Format:   "pretty",
-			Paths:    []string{"features"},
-			TestingT: t, // Testing instance that will run subtests.
-		},
-	}
+	suite := NewDefaultGodogSuite(t, InitializeScenario)
 
 	if suite.Run() != 0 {
 		t.Fatal("non-zero status returned, failed to run feature tests")

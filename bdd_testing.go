@@ -45,12 +45,3 @@ func (bt *BddTesting) EmitErrors(ctx context.Context, st *godog.Step, status god
 
 	return ctx, bt.err
 }
-
-// Wrapper around ScenarioInitialiser which allows us to pass the *testing.T object to it along with the ScenarioContext
-func TestingScenarioInitialiser(t *testing.T, init func(*testing.T, *godog.ScenarioContext) *BddTesting) func(sc *godog.ScenarioContext) {
-	return func(sc *godog.ScenarioContext) {
-		bt := init(t, sc)
-		// this produces the nice color-coded output
-		sc.StepContext().After(bt.EmitErrors)
-	}
-}
